@@ -1,0 +1,3 @@
+- run in qtcreator with qmake
+- made in qt 5 in linux
+- current issue with building and running the application
