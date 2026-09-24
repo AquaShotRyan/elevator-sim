@@ -1,0 +1,6 @@
+elevator-sim.pro.user
+build-elevator-sim*
+elevator-sim/build
+**/.qtcreator
+**/.vs
+**/*.pro.user
