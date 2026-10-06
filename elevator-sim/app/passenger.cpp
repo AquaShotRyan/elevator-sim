@@ -14,15 +14,13 @@ name(name), weight(weight), curFloor(startingFloor), curElevator(nullptr)
 bool Passenger::requestElevatorUp()
 {
     if (curFloor == nullptr) return false;
-    curFloor->requestUp();
-    return true;
+    return curFloor->requestUp();
 }
 
 bool Passenger::requestElevatorDown()
 {
     if (curFloor == nullptr) return false;
-    curFloor->requestDown();
-    return true;
+    return curFloor->requestDown();
 }
 
 bool Passenger::enterElevator()
@@ -59,8 +57,7 @@ bool Passenger::exitElevator()
 bool Passenger::selectFloor(const int floor)
 {
     if (curElevator == nullptr) return false;
-    curElevator->getPanel()->requestFloor(floor);
-    return true;
+    return curElevator->getPanel()->requestFloor(floor);
 }
 
 bool Passenger::pressHelp()
@@ -87,8 +84,7 @@ bool Passenger::pressClose()
 bool Passenger::pressOpen()
 {
     if (curElevator == nullptr) return false;
-    curElevator->getPanel()->openDoor();
-    return true;
+    return curElevator->getPanel()->openDoor();
 }
 
 /* ========================getters and setters======================== */

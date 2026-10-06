@@ -83,6 +83,7 @@ void Elevator::addFloorRequest(const int floor)
     for (int i=0; i<floorRequests.size(); ++i){
         if (floor == floorRequests.at(i)) return;
     }
+
     floorRequests.push_back(floor);
 }
 
@@ -150,6 +151,14 @@ ElevatorPanel* Elevator::getPanel()
 Floor* Elevator::getCurFloor()
 {
     return curFloor;
+}
+
+int Elevator::getPassengersSize() {
+    return passengers.size();
+}
+
+int Elevator::getFloorRequestsSize() {
+    return floorRequests.size();
 }
 
 void Elevator::setFloor(int n)

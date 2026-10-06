@@ -44,6 +44,8 @@ public:
     bool getDoorClosed();
     ElevatorPanel* getPanel();
     Floor* getCurFloor();
+    int getPassengersSize();
+    int getFloorRequestsSize();
 
     void setCurFloor(Floor* f);
     void setFloor(int n);

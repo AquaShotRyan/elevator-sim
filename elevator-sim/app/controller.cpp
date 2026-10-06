@@ -98,6 +98,11 @@ Passenger* Controller::getSelectedPassenger()
     return selectedPassenger;
 }
 
+Elevator* Controller::getSelectedElevator()
+{
+    return selectedElevator;
+}
+
 /* ========elevator panel======== */
 bool Controller::requestFloor(const int floor)
 {

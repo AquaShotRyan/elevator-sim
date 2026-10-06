@@ -21,7 +21,8 @@ Passenger* Floor::removePassenger(const QString& name)
     for (int i=0; i<passengers.size(); ++i){
         if (passengers.at(i)->getName().compare(name) == 0){
             Passenger* p = passengers.at(i);
-            passengers.erase(passengers.begin() + i);
+            //passengers.erase(passengers.begin() + i);
+            passengers.removeAt(i);
             return p;
         }
     }
@@ -43,7 +44,7 @@ bool Floor::removeElevator(const int id)
             return true;
         }
     }
-    // if elevator doesn't exist, return nullptr
+    // if elevator doesn't exist, return false
     return false;
 }
 

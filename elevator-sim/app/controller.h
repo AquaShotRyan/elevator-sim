@@ -45,6 +45,7 @@ public:
     int getCurElevatorId();// for elevator panel id display
     QVector<int> getRequestsList(const int eId);
     Passenger* getSelectedPassenger();
+    Elevator* getSelectedElevator();
 
 private:
     ElevatorControlSystem* ecs;

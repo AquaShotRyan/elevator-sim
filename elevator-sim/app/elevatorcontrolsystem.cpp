@@ -47,43 +47,6 @@ int ElevatorControlSystem::getTopFloor()
 }
 
 /* =============main ecs functions=============*/
-bool ElevatorControlSystem::moveElevator(const int id, const int floor)// check for obstacles later
-{
-    Elevator* e = getElevator(id);
-    if (e == nullptr || floor > floorsNum || floor < 1) return false;
-
-    // check weight
-    if (checkWeight(e->getWeight()) == false){
-        e->playMsg("elevator is overweight, please unload some passengers and the elevator will attemp to move again");
-        return false;
-    }
-
-    // close door
-    if (!e->close()){
-        e->playMsg("obstacle blocking door, cannot proceed");
-        return false;
-    }
-
-    // remove elevator from floor
-    e->getCurFloor()->removeElevator(id);
-
-    // set elevator's new floor
-    e->setFloor(floor);
-    e->senseFloor();// could just give it the new floor pointer directly, but this is for the sake of simulating real life sensors
-
-    // add elevator to new floor
-    e->getCurFloor()->addElevator(e);
-
-    // unilluminate the up and down buttons
-    e->getCurFloor()->cancelDown();
-    e->getCurFloor()->cancelUp();
-
-    // open door
-    e->open();
-    e->ringBell();
-    return true;
-}
-
 void ElevatorControlSystem::moveAllElevators()
 {
     int id;
@@ -112,16 +75,17 @@ void ElevatorControlSystem::fulfillRequest(const int id)
 
 void ElevatorControlSystem::handleFloorRequest(const int floor, const bool direction)
 {   
-    // an elevator is already on the floor
+
     for (int i=0; i<elevators.size(); ++i){
+        // an elevator is already on the floor
         if (elevators.at(i)->getFloorNum() == floor){
-            if (elevators.at(i)->getDoorClosed() == false) return;// door already open, don't need to add request
+            if (elevators.at(i)->getDoorClosed() == false) return;// door already open for guest to exit, don't add the request
             elevators.at(i)->addFloorRequest(floor);
             return;
         }
     }
 
-    // fin optimal elevator to give floor to and add the floor to the elevator
+    // find optimal elevator to give floor to and add the floor to the elevator
     Elevator* bestElevator = findBestElevator(floor, direction);
     addFloorRequest(bestElevator, floor, direction);
     return;
@@ -189,7 +153,44 @@ void ElevatorControlSystem::signalPowerOut()
     }
 }
 
-/* =============other private functions============= */
+/* =============Helper Functions============= */
+bool ElevatorControlSystem::moveElevator(const int id, const int floor)// check for obstacles later
+{
+    Elevator* e = getElevator(id);
+    if (e == nullptr || floor > floorsNum || floor < 1) return false;
+
+    // check weight
+    if (checkWeight(e->getWeight()) == false){
+        e->playMsg("elevator is overweight, please unload some passengers and the elevator will attemp to move again");
+        return false;
+    }
+
+    // close door
+    if (!e->close()){
+        e->playMsg("obstacle blocking door, cannot proceed");
+        return false;
+    }
+
+    // remove elevator from floor
+    e->getCurFloor()->removeElevator(id);
+
+    // set elevator's new floor
+    e->setFloor(floor);
+    e->senseFloor();// could just give it the new floor pointer directly, but this is for the sake of simulating real life sensors
+
+    // add elevator to new floor
+    e->getCurFloor()->addElevator(e);
+
+    // unilluminate the up and down buttons
+    e->getCurFloor()->cancelDown();
+    e->getCurFloor()->cancelUp();
+
+    // open door
+    e->open();
+    e->ringBell();
+    return true;
+}
+
 bool ElevatorControlSystem::findDirection(Elevator* e)
 {
     if (e->getFloorNum() < e->getFloorRequest(0))
@@ -265,24 +266,41 @@ int ElevatorControlSystem::findPassing(Elevator* e, const int floor, const bool 
 {
     int distance = 0;
 
+    // If the elevator is going up
     if (direction == true){
+        // If the elevator's current floor is BELOW the floor requested AND the elevator's next floor is ABOVE the requested floor
         if (e->getFloorNum() < floor && floor < e->getFloorRequest(0))
             return distance;
-        for (int i=0; i<e->floorRequestSize(); ++i){
-            if (e->getFloorRequest(i) < floor && floor < e->getFloorRequest(i+1))
-                return distance;
-            distance++;
+
+        // Find distance (pos in queue) until the elevator's floors will pass requested floor
+        if (e->floorRequestSize() > 1){
+            for (int i=0; i<e->floorRequestSize(); ++i){
+                ++distance;
+                if (e->getFloorRequest(i+1) < 1)
+                    break;
+                if (e->getFloorRequest(i) < floor && floor < e->getFloorRequest(i+1))
+                    return distance;
+            }
         }
+
         return -1;
 
     }else{
+        // If the elevator's current floor is ABOVE the floor requested AND the elevat's next floor is BELOW the requested floor
         if (e->getFloorNum() > floor && floor > e->getFloorRequest(0))
             return distance;
-        for (int i=0; i<e->floorRequestSize(); ++i){
-            if (e->getFloorRequest(i) > floor && floor > e->getFloorRequest(i+1))
-                return distance;
-            distance++;
+
+        // Find distance (pos in queue) until the elevator's floors will pass requested floor
+        if (e->floorRequestSize() > 1){
+            for (int i=0; i<e->floorRequestSize(); ++i){
+                ++distance;
+                if (e->getFloorRequest(i+1) < 1) // accessing an int index out of bounds returns -1
+                    break;
+                if (e->getFloorRequest(i) > floor && floor > e->getFloorRequest(i+1))
+                    return distance;
+            }
         }
+
         return -1;
     }
 }
